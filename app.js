@@ -8,8 +8,8 @@ require("./model"); //连接数据库
 
 const app = express();
 
-app.use(cors());
-app.use(morgan("dev"));
+app.use(cors()); //处理跨域
+app.use(morgan("dev")); //输出日志
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
