@@ -1,9 +1,20 @@
 const { User } = require("../model");
+const { sign } = require("../util/jwt");
+const { jwtSignature } = require("../config/base.config");
 
 //用户登录
 exports.login = async (req, res, next) => {
   try {
-    res.status(200).send("/login post");
+    //用户登录时  通过数据验证后，要生成toke返回客户端  采用jwt身份认证
+    const token = await sign({ userId: req.user._id }, jwtSignature, {
+      expiresIn: 60 * 60 * 24, //设置token过期时间 为一天
+    });
+    let user = req.user.toJSON();
+    user.token = token;
+    res.status(200).json({
+      message: "登陆成功",
+      user,
+    });
   } catch (error) {
     next(error);
   }
@@ -33,5 +44,16 @@ exports.register = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+
+//获取当前用户
+exports.currentUser = async (req, res, next) => {
+  try {
+    res.status(200).json({
+      user: req.user,
+    });
+  } catch (err) {
+    next(err);
   }
 };

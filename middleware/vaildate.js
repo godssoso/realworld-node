@@ -1,9 +1,10 @@
 /**
  * 数据验证中间件
  */
-const { validationResult } = require("express-validator");
+const { validationResult, buildCheckFunction } = require("express-validator");
+const mongoose = require("mongoose");
 
-module.exports = (validations) => {
+exports = module.exports = (validations) => {
   return async (req, res, next) => {
     await Promise.all(validations.map((validation) => validation.run(req)));
 
@@ -14,4 +15,12 @@ module.exports = (validations) => {
 
     res.status(400).json({ errors: errors.array() });
   };
+};
+
+exports.isValidObjectId = (location, filed) => {
+  return buildCheckFunction(location)(filed).custom(async (value) => {
+    if (!mongoose.isValidObjectId(value)) {
+      return Promise.reject("文章id类型错误");
+    }
+  });
 };
